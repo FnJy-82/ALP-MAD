@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Model
-final class TimeBlock {
+final class TimeBlockModel {
     var id: UUID
     var title: String
     var startTime: Date

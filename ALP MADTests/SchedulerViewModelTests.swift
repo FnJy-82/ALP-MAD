@@ -5,17 +5,22 @@
 //  Created by student on 28/05/26.
 //
 
+import Foundation
 import Testing
 import SwiftData
 @testable import ALP_MAD
 
 @Suite("SchedulerViewModel Tests")
+@MainActor
 struct SchedulerViewModelTests {
     
     //Setup
     private func makeViewModel() throws -> SchedulerViewModel {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: TimeBlockModel.self, Interest.self, configurations: config)
+        let container = try ModelContainer(
+            for: TimeBlockModel.self, Interest.self,
+            configurations: config
+        )
         return SchedulerViewModel(modelContext: container.mainContext)
     }
 
