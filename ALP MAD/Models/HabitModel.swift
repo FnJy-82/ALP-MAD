@@ -9,14 +9,14 @@ import Foundation
 import SwiftData
 
 @Model
-final class Habit {
+final class HabitModel {
     var id: UUID
     var name: String
     var colorHex: String
     var streakCount: Int
     var createdAt: Date
 
-    @Relationship(deleteRule: .cascade) var logs: [HabitLog] = []
+    @Relationship(deleteRule: .cascade) var logs: [HabitLogModel] = []
 
     init(
         id: UUID = UUID(),
@@ -36,6 +36,3 @@ final class Habit {
         !name.trimmingCharacters(in: .whitespaces).isEmpty
     }
 }
-
-// Models/PomodoroSession.swift
-

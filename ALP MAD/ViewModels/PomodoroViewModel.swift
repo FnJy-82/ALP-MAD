@@ -12,24 +12,25 @@ import Observation
 @Observable
 final class PomodoroViewModel {
     
-    // MARK: - Dependencies
+    //Dependencies
     private let notificationService: NotificationService
     
-    // MARK: - State
-    var session: PomodoroSession
+    //State
+    var session: PomodoroSessionModel
     var timeRemaining: Int
-    var linkedHabit: Habit?
+    var linkedHabit: HabitModel?
     
     private var timer: Timer?
     
     init(notificationService: NotificationService = .shared) {
         self.notificationService = notificationService
-        self.session = PomodoroSession()
-        self.timeRemaining = session.focusDuration
+        let newSession = PomodoroSessionModel()
+        self.session = newSession
+        self.timeRemaining = newSession.focusDuration
+        self.linkedHabit = nil
     }
     
-    // MARK: - Controls
-    
+    //Controls
     func start() {
         guard session.state == .idle || session.state == .paused else { return }
         session.state = .running
@@ -67,15 +68,14 @@ final class PomodoroViewModel {
         session.breakDuration = minutes * 60
     }
     
-    func linkHabit( habit: Habit?) {
+    func linkHabit(_ habit: HabitModel?) {
         linkedHabit = habit
         session.linkedHabitId = habit?.id
     }
     
-    // MARK: - Timer
-    
+    //Timer
     private func startTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self]  in
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 self?.tick()
             }
@@ -111,8 +111,7 @@ final class PomodoroViewModel {
         }
     }
     
-    // MARK: - Notifications
-    
+    //Notifications
     private func notifyBreak() {
         notificationService.scheduleImmediateNotification(
             title: "Istirahat dulu!",

@@ -16,8 +16,8 @@ final class HabitViewModel {
     private let modelContext: ModelContext
     private let notificationService: NotificationService
 
-    var habits: [Habit] = []
-    var logs: [HabitLog] = []
+    var habits: [HabitModel] = []
+    var logs: [HabitLogModel] = []
     var errorMessage: String?
 
     init(
@@ -29,7 +29,7 @@ final class HabitViewModel {
     }
 
     func fetchHabits() {
-        let descriptor = FetchDescriptor<Habit>(
+        let descriptor = FetchDescriptor<HabitModel>(
             sortBy: [SortDescriptor(\.createdAt)]
         )
         do {
@@ -40,7 +40,7 @@ final class HabitViewModel {
     }
 
     func addHabit(name: String, colorHex: String) {
-        let habit = Habit(name: name, colorHex: colorHex)
+        let habit = HabitModel(name: name, colorHex: colorHex)
         guard habit.isValid else {
             errorMessage = "Nama habit tidak boleh kosong."
             return
@@ -50,7 +50,7 @@ final class HabitViewModel {
         fetchHabits()
     }
 
-    func deleteHabit(_ habit: Habit) {
+    func deleteHabit(_ habit: HabitModel) {
         modelContext.delete(habit)
         save()
         fetchHabits()
@@ -59,10 +59,10 @@ final class HabitViewModel {
     func fetchLogs(for date: Date) {
         let start = DateHelper.startOfDay(date)
         let end = DateHelper.endOfDay(date)
-        let predicate = #Predicate<HabitLog> { log in
+        let predicate = #Predicate<HabitLogModel> { log in
             log.date >= start && log.date <= end
         }
-        let descriptor = FetchDescriptor<HabitLog>(predicate: predicate)
+        let descriptor = FetchDescriptor<HabitLogModel>(predicate: predicate)
         do {
             logs = try modelContext.fetch(descriptor)
         } catch {
@@ -70,7 +70,7 @@ final class HabitViewModel {
         }
     }
 
-    func markComplete(habit: Habit, on date: Date = .now) {
+    func markComplete(habit: HabitModel, on date: Date = .now) {
         let start = DateHelper.startOfDay(date)
         let end = DateHelper.endOfDay(date)
         let habitId = habit.id
@@ -90,7 +90,7 @@ final class HabitViewModel {
                 updateStreak(for: habit)
             }
         } else {
-            let log = HabitLog(date: date, isCompleted: true, habit: habit)
+            let log = HabitLogModel(date: date, isCompleted: true, habit: habit)
             modelContext.insert(log)
             updateStreak(for: habit)
         }
@@ -100,7 +100,7 @@ final class HabitViewModel {
         fetchHabits()
     }
 
-    func isCompleted(habit: Habit, on date: Date = .now) -> Bool {
+    func isCompleted(habit: HabitModel, on date: Date = .now) -> Bool {
         let start = DateHelper.startOfDay(date)
         let end = DateHelper.endOfDay(date)
         return logs.contains {
@@ -112,16 +112,16 @@ final class HabitViewModel {
         }
     }
 
-    private func updateStreak(for habit: Habit) {
+    private func updateStreak(for habit: HabitModel) {
         habit.streakCount += 1
     }
 
-    private func recalculateStreak(for habit: Habit) {
+    private func recalculateStreak(for habit: HabitModel) {
         let habitId = habit.id
-        let predicate = #Predicate<HabitLog> { log in
+        let predicate = #Predicate<HabitLogModel> { log in
             log.habit?.id == habitId && log.isCompleted == true
         }
-        let descriptor = FetchDescriptor<HabitLog>(
+        let descriptor = FetchDescriptor<HabitLogModel>(
             predicate: predicate,
             sortBy: [SortDescriptor(\.date, order: .reverse)]
         )

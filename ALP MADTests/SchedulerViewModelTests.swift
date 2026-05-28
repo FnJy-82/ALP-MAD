@@ -18,7 +18,7 @@ struct SchedulerViewModelTests {
     private func makeViewModel() throws -> SchedulerViewModel {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
-            for: TimeBlockModel.self, Interest.self,
+            for: TimeBlockModel.self, InterestModel.self,
             configurations: config
         )
         return SchedulerViewModel(modelContext: container.mainContext)

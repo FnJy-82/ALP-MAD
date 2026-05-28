@@ -14,32 +14,32 @@ struct HabitModelTests {
 
     @Test("isValid true untuk nama yang benar")
     func validHabit() {
-        let habit = Habit(name: "Olahraga", colorHex: "#FF0000")
+        let habit = HabitModel(name: "Olahraga", colorHex: "#FF0000")
         #expect(habit.isValid == true)
     }
 
     @Test("isValid false untuk nama kosong")
     func emptyName() {
-        let habit = Habit(name: "", colorHex: "#FF0000")
+        let habit = HabitModel(name: "", colorHex: "#FF0000")
         #expect(habit.isValid == false)
     }
 
     @Test("isValid false untuk nama spasi")
     func whitespaceName() {
-        let habit = Habit(name: "   ", colorHex: "#FF0000")
+        let habit = HabitModel(name: "   ", colorHex: "#FF0000")
         #expect(habit.isValid == false)
     }
 
     @Test("streakCount default adalah 0")
     func defaultStreak() {
-        let habit = Habit(name: "Meditasi", colorHex: "#00FF00")
+        let habit = HabitModel(name: "Meditasi", colorHex: "#00FF00")
         #expect(habit.streakCount == 0)
     }
 
     @Test("id unik untuk setiap habit")
     func uniqueIds() {
-        let a = Habit(name: "A", colorHex: "#000000")
-        let b = Habit(name: "B", colorHex: "#FFFFFF")
+        let a = HabitModel(name: "A", colorHex: "#000000")
+        let b = HabitModel(name: "B", colorHex: "#FFFFFF")
         #expect(a.id != b.id)
     }
 }

@@ -11,8 +11,8 @@ struct TaskModelTests {
         priority: Priority = .medium,
         deadline: Date? = nil,
         isDone: Bool = false
-    ) -> Task {
-        Task(title: title, priority: priority, deadline: deadline, isDone: isDone)
+    ) -> TaskModel {
+        TaskModel(title: title, priority: priority, deadline: deadline, isDone: isDone)
     }
 
     @Test("isValid true untuk judul yang benar")

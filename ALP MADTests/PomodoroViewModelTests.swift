@@ -93,7 +93,7 @@ struct PomodoroViewModelTests {
     @Test("linkHabit menyimpan habit dan habitId")
     func linkHabit() {
         let vm = PomodoroViewModel()
-        let habit = Habit(name: "Olahraga", colorHex: "#FF0000")
+        let habit = HabitModel(name: "Olahraga", colorHex: "#FF0000")
         vm.linkHabit(habit)
         #expect(vm.linkedHabit?.id == habit.id)
         #expect(vm.session.linkedHabitId == habit.id)
@@ -102,7 +102,7 @@ struct PomodoroViewModelTests {
     @Test("linkHabit nil menghapus habit")
     func unlinkHabit() {
         let vm = PomodoroViewModel()
-        let habit = Habit(name: "Olahraga", colorHex: "#FF0000")
+        let habit = HabitModel(name: "Olahraga", colorHex: "#FF0000")
         vm.linkHabit(habit)
         vm.linkHabit(nil)
         #expect(vm.linkedHabit == nil)

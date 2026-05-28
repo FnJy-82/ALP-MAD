@@ -17,7 +17,7 @@ struct HabitViewModelTests {
     private func makeViewModel() throws -> HabitViewModel {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
-            for: Habit.self, HabitLog.self,
+            for: HabitModel.self, HabitLogModel.self,
             configurations: config
         )
         return HabitViewModel(modelContext: container.mainContext)

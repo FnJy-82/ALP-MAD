@@ -17,7 +17,7 @@ enum PomodoroState: String, Codable {
 }
 
 @Model
-final class PomodoroSession {
+final class PomodoroSessionModel {
     var id: UUID
     var focusDuration: Int
     var breakDuration: Int
