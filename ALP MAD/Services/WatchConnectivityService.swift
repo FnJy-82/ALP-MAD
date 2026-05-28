@@ -49,4 +49,23 @@ final class WatchConnectivityService: NSObject, WCSessionDelegate {
     
     func sessionDidBecomeInactive(_ session: WCSession) {}
     func sessionDidDeactivate(_ session: WCSession) {}
+    
+    func sendHabits(_ habits: [Habit]) {
+        guard WCSession.default.isReachable else { return }
+
+        let payload = habits.map { habit in
+            [
+                "id": habit.id.uuidString,
+                "name": habit.name,
+                "colorHex": habit.colorHex,
+                "streakCount": habit.streakCount
+            ] as [String: Any]
+        }
+
+        WCSession.default.sendMessage(
+            ["habits": payload],
+            replyHandler: nil,
+            errorHandler: nil
+        )
+    }
 }
