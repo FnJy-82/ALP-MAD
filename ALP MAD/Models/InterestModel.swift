@@ -15,6 +15,8 @@ final class Interest {
     var colorHex: String
     var createdAt: Date
 
+    @Relationship(deleteRule: .cascade) var tasks: [Task] = []
+
     init(
         id: UUID = UUID(),
         name: String,
@@ -27,3 +29,4 @@ final class Interest {
         self.createdAt = createdAt
     }
 }
+
