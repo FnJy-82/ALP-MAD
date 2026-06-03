@@ -13,6 +13,7 @@ struct TimeBlockEditorForm: View {
     let vm: SchedulerViewModel
     let interests: [InterestModel]
     let existingBlock: TimeBlockModel?
+    let selectedDate: Date
 
     @State private var title: String = ""
     @State private var selectedInterestId: UUID?
@@ -66,6 +67,7 @@ struct TimeBlockEditorForm: View {
                     DatePicker(
                         "Mulai",
                         selection: $startTime,
+                        in: DateHelper.startOfDay(selectedDate)...DateHelper.endOfDay(selectedDate),
                         displayedComponents: .hourAndMinute
                     )
                     .accessibilityIdentifier("block-start-picker")
@@ -78,7 +80,7 @@ struct TimeBlockEditorForm: View {
                     DatePicker(
                         "Selesai",
                         selection: $endTime,
-                        in: startTime.addingTimeInterval(15 * 60)...,
+                        in: startTime.addingTimeInterval(15 * 60)...DateHelper.endOfDay(selectedDate),
                         displayedComponents: .hourAndMinute
                     )
                     .accessibilityIdentifier("block-end-picker")
@@ -118,7 +120,12 @@ struct TimeBlockEditorForm: View {
             }
             .onAppear {
                 titleFocused = true
-                prefillIfEditing()
+                if existingBlock != nil {
+                    prefillIfEditing()
+                } else {
+                    startTime = combineDateWithTime(date: selectedDate, hour: 9, minute: 0)
+                    endTime = combineDateWithTime(date: selectedDate, hour: 10, minute: 0)
+                }
             }
         }
     }
@@ -155,6 +162,16 @@ struct TimeBlockEditorForm: View {
             dismiss()
         }
     }
+}
+
+private func combineDateWithTime(date: Date, hour: Int, minute: Int) -> Date {
+    var components = Calendar.current.dateComponents(
+        [.year, .month, .day],
+        from: date
+    )
+    components.hour = hour
+    components.minute = minute
+    return Calendar.current.date(from: components) ?? date
 }
 
 private struct InterestChip: View {

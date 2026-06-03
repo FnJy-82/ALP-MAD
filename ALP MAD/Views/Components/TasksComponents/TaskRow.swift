@@ -28,6 +28,7 @@ struct TaskRow: View {
                     )
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(task.isDone ? "Mark undone" : "Mark done")  
             .accessibilityIdentifier("task-toggle-\(task.id)")
 
             VStack(alignment: .leading, spacing: 4) {

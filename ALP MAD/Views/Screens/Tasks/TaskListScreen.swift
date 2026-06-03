@@ -10,15 +10,17 @@ import SwiftData
 
 struct TaskListScreen: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var allInterests: [InterestModel]
+
+    @Query(sort: [SortDescriptor(\InterestModel.createdAt)])
+    private var allInterests: [InterestModel]
 
     let interest: InterestModel
+    
     @State private var vm: TaskViewModel
     @State private var showTaskEditor = false
-    @State (sort: [SortDescriptor(\InterestModel.createdAt)]) private var allInterest: [InterestModel]
-    @State private var showCompleted = false
     @State private var selectedTask: TaskModel? = nil
-    
+    @State private var showCompleted = false
+
     init(interest: InterestModel, modelContext: ModelContext) {
         self.interest = interest
         _vm = State(initialValue: TaskViewModel(modelContext: modelContext))
@@ -55,6 +57,7 @@ struct TaskListScreen: View {
                 } label: {
                     Image(systemName: showCompleted ? "eye.slash" : "eye")
                 }
+                .accessibilityIdentifier("toggle-completed-button")
             }
         }
         .sheet(isPresented: $showTaskEditor, onDismiss: {
@@ -65,7 +68,9 @@ struct TaskListScreen: View {
             TaskEditorForm(
                 vm: vm,
                 interests: allInterests,
-                existingTask: selectedTask
+                existingTask: selectedTask,
+                defaultInterest: interest,
+                hideInterestPicker: true
             )
         }
         .onAppear {
@@ -82,7 +87,10 @@ struct TaskListScreen: View {
                         TaskRow(
                             task: task,
                             interest: interest,
-                            onToggle: { vm.toggleDone($0) },
+                            onToggle: { task in
+                                vm.toggleDone(task)
+                                vm.fetchTasks(for: interest)  // ← tambah
+                            },
                             onDelete: { vm.deleteTask($0) }
                         )
                         .onTapGesture {
@@ -93,14 +101,17 @@ struct TaskListScreen: View {
                 }
             }
 
-            // completed tasks — toggle visibility
+            // completed tasks
             if showCompleted && !vm.completedTasks.isEmpty {
                 Section("Selesai (\(vm.completedTasks.count))") {
                     ForEach(vm.completedTasks) { task in
                         TaskRow(
                             task: task,
                             interest: interest,
-                            onToggle: { vm.toggleDone($0) },
+                            onToggle: { task in
+                                vm.toggleDone(task)
+                                vm.fetchTasks(for: interest)  // ← tambah
+                            },
                             onDelete: { vm.deleteTask($0) }
                         )
                     }
