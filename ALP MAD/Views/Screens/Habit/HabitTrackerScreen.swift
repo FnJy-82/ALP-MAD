@@ -172,7 +172,7 @@ struct HabitTrackerScreen: View {
                                         : Color.clear,
                                         lineWidth: 1.5)
                         )
-                        .foregroundStyle(pomodoroVM.linkedHabit == nil ? .accentColor : .secondary)
+//                        .foregroundStyle(pomodoroVM.linkedHabit == nil ? .accentColor : .secondary)
                 }
                 .buttonStyle(.plain)
 
