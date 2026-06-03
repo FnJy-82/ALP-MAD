@@ -10,7 +10,7 @@ struct TaskViewModelTests {
     private func makeViewModel() throws -> TaskViewModel {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
-            for: Interest.self, Task.self,
+            for: InterestModel.self, TaskModel.self,
             configurations: config
         )
         return TaskViewModel(modelContext: container.mainContext)

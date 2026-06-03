@@ -15,7 +15,7 @@ enum Priority: String, Codable, CaseIterable {
 }
 
 @Model
-final class Task {
+final class TaskModel {
     var id: UUID
     var title: String
     var priority: Priority
@@ -24,7 +24,7 @@ final class Task {
     var createdAt: Date
 
     //Relasi ke Interest
-    var interest: Interest?
+    var interest: InterestModel?
 
     init(
         id: UUID = UUID(),
@@ -33,7 +33,7 @@ final class Task {
         deadline: Date? = nil,
         isDone: Bool = false,
         createdAt: Date = .now,
-        interest: Interest? = nil
+        interest: InterestModel? = nil
     ) {
         self.id = id
         self.title = title

@@ -10,9 +10,9 @@ final class TaskViewModel {
     private let modelContext: ModelContext
 
     //State
-    var interests: [Interest] = []
-    var tasks: [Task] = []
-    var selectedInterest: Interest?
+    var interests: [InterestModel] = []
+    var tasks: [TaskModel] = []
+    var selectedInterest: InterestModel?
     var errorMessage: String?
 
     init(modelContext: ModelContext) {
@@ -21,7 +21,7 @@ final class TaskViewModel {
 
     //Interest CRUD
     func fetchInterests() {
-        let descriptor = FetchDescriptor<Interest>(
+        let descriptor = FetchDescriptor<InterestModel>(
             sortBy: [SortDescriptor(\.createdAt)]
         )
         do {
@@ -41,13 +41,13 @@ final class TaskViewModel {
             return
         }
 
-        let interest = Interest(name: name, colorHex: colorHex)
+        let interest = InterestModel(name: name, colorHex: colorHex)
         modelContext.insert(interest)
         save()
         fetchInterests()
     }
 
-    func deleteInterest(_ interest: Interest) {
+    func deleteInterest(_ interest: InterestModel) {
         modelContext.delete(interest)
         if selectedInterest?.id == interest.id {
             selectedInterest = nil
@@ -58,13 +58,13 @@ final class TaskViewModel {
     }
 
     //Task CRUD
-    func fetchTasks(for interest: Interest?) {
+    func fetchTasks(for interest: InterestModel?) {
         if let interest {
             let id = interest.id
-            let predicate = #Predicate<Task> { task in
+            let predicate = #Predicate<TaskModel> { task in
                 task.interest?.id == id
             }
-            let descriptor = FetchDescriptor<Task>(
+            let descriptor = FetchDescriptor<TaskModel>(
                 predicate: predicate,
                 sortBy: [SortDescriptor(\.createdAt)]
             )
@@ -78,8 +78,8 @@ final class TaskViewModel {
         }
     }
 
-    func addTask(title: String, priority: Priority, deadline: Date?, to interest: Interest?) {
-        let task = Task(
+    func addTask(title: String, priority: Priority, deadline: Date?, to interest: InterestModel?) {
+        let task = TaskModel(
             title: title,
             priority: priority,
             deadline: deadline,
@@ -95,38 +95,38 @@ final class TaskViewModel {
         fetchTasks(for: selectedInterest)
     }
 
-    func toggleDone(_ task: Task) {
+    func toggleDone(_ task: TaskModel) {
         task.isDone.toggle()
         save()
         fetchTasks(for: selectedInterest)
     }
 
-    func deleteTask(_ task: Task) {
+    func deleteTask(_ task: TaskModel) {
         modelContext.delete(task)
         save()
         fetchTasks(for: selectedInterest)
     }
 
-    func selectInterest(_ interest: Interest?) {
+    func selectInterest(_ interest: InterestModel?) {
         selectedInterest = interest
         fetchTasks(for: interest)
     }
 
     //Helpers
-    var pendingTasks: [Task] {
+    var pendingTasks: [TaskModel] {
         tasks.filter { !$0.isDone }
     }
 
-    var completedTasks: [Task] {
+    var completedTasks: [TaskModel] {
         tasks.filter { $0.isDone }
     }
 
-    var overdueTasks: [Task] {
+    var overdueTasks: [TaskModel] {
         tasks.filter { $0.isOverdue }
     }
 
     private func fetchAllTasks() {
-        let descriptor = FetchDescriptor<Task>(
+        let descriptor = FetchDescriptor<TaskModel>(
             sortBy: [SortDescriptor(\.createdAt)]
         )
         do {

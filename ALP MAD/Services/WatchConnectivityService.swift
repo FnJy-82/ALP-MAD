@@ -50,7 +50,7 @@ final class WatchConnectivityService: NSObject, WCSessionDelegate {
     func sessionDidBecomeInactive(_ session: WCSession) {}
     func sessionDidDeactivate(_ session: WCSession) {}
     
-    func sendHabits(_ habits: [Habit]) {
+    func sendHabits(_ habits: [HabitModel]) {
         guard WCSession.default.isReachable else { return }
 
         let payload = habits.map { habit in

@@ -9,17 +9,17 @@ import Foundation
 import SwiftData
 
 @Model
-final class HabitLog {
+final class HabitLogModel {
     var id: UUID
     var date: Date
     var isCompleted: Bool
-    var habit: Habit?
+    var habit: HabitModel?
 
     init(
         id: UUID = UUID(),
         date: Date = .now,
         isCompleted: Bool = false,
-        habit: Habit? = nil
+        habit: HabitModel? = nil
     ) {
         self.id = id
         self.date = date

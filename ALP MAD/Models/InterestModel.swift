@@ -9,13 +9,13 @@ import Foundation
 import SwiftData
 
 @Model
-final class Interest {
+final class InterestModel {
     var id: UUID
     var name: String
     var colorHex: String
     var createdAt: Date
 
-    @Relationship(deleteRule: .cascade) var tasks: [Task] = []
+    @Relationship(deleteRule: .cascade) var tasks: [TaskModel] = []
 
     init(
         id: UUID = UUID(),
