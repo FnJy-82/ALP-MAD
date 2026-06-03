@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import UserNotifications
 
 @main
 struct ALP_MADApp: App {
@@ -14,6 +15,7 @@ struct ALP_MADApp: App {
     let container: ModelContainer
 
     init() {
+        UNUserNotificationCenter.current().delegate = AppNotificationDelegate.shared
         do {
             let isUITesting = ProcessInfo.processInfo.arguments.contains("UI_TESTING")
             let config = ModelConfiguration(isStoredInMemoryOnly: isUITesting)
@@ -46,6 +48,20 @@ struct ALP_MADApp: App {
         ]
         interests.forEach { context.insert($0) }
         try? context.save()
+    }
+    
+    final class AppNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
+        static let shared = AppNotificationDelegate()
+        
+        private override init() { super.init() }
+        
+        func userNotificationCenter(
+            _ center: UNUserNotificationCenter,
+            willPresent notification: UNNotification,
+            withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+        ) {
+            completionHandler([.banner, .sound, .badge])
+        }
     }
 }
 

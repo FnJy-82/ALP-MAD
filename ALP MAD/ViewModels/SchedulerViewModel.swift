@@ -47,28 +47,23 @@ final class SchedulerViewModel {
     //Add
     func addBlock(_ block: TimeBlockModel) {
         guard block.isValid else {
-            errorMessage = "Jadwal tidak valid. Pastikan judul dan waktu sudah benar."
+            errorMessage = "Jadwal tidak valid."
             return
         }
+
+        // ← fetch dulu untuk hari yang sama dengan block baru
+        fetchBlocks(for: block.startTime)
+
         guard !hasConflict(with: block) else {
             errorMessage = "Jadwal bentrok dengan blok waktu lain."
             return
         }
-        print("DEBUG: creating newBlock")
-        let newBlock = TimeBlockModel(
-            id: block.id,
-            title: block.title,
-            startTime: block.startTime,
-            endTime: block.endTime,
-            interestId: block.interestId
-        )
-        modelContext.insert(newBlock)
+
+        modelContext.insert(block)
         save()
-        if WCSession.isSupported() {
-            WatchConnectivityService.shared.sendTimeBlocks(timeBlocks)
-        }
-        fetchBlocks(for: selectedDate)
-        notificationService.scheduleNotification(for: newBlock)
+        fetchBlocks(for: block.startTime)  // ← fetch by startTime block, bukan selectedDate
+        notificationService.scheduleNotification(for: block)
+        WatchConnectivityService.shared.sendTimeBlocks(timeBlocks)
     }
 
     //Delete

@@ -80,7 +80,8 @@ struct SchedulerScreen: View {
                 TimeBlockEditorForm(
                     vm: vm,
                     interests: interests,
-                    existingBlock: selectedBlock
+                    existingBlock: selectedBlock,
+                    selectedDate: vm.selectedDate
                 )
             }
             .navigationDestination(isPresented: $showWeekView) {

@@ -81,6 +81,14 @@ struct InterestListScreen: View {
 private struct InterestListRow: View {
     let interest: InterestModel
 
+    private var pendingCount: Int {
+        interest.tasks.filter { !$0.isDone }.count
+    }
+
+    private var totalCount: Int {
+        interest.tasks.count
+    }
+
     var body: some View {
         HStack(spacing: 12) {
             Circle()
@@ -92,12 +100,10 @@ private struct InterestListRow: View {
 
             Spacer()
 
-            Text("\(interest.tasks.count) tugas")
+            Text("\(pendingCount)/\(totalCount) tugas")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(pendingCount == 0 ? .green : .secondary)
         }
         .padding(.vertical, 4)
     }
 }
-
-

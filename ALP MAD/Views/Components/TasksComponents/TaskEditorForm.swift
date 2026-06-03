@@ -13,7 +13,9 @@ struct TaskEditorForm: View {
     let vm: TaskViewModel
     let interests: [InterestModel]
     let existingTask: TaskModel?
-
+    let defaultInterest: InterestModel?
+    let hideInterestPicker: Bool
+    
     @State private var title: String = ""
     @State private var priority: Priority = .medium
     @State private var deadline: Date? = nil
@@ -39,14 +41,18 @@ struct TaskEditorForm: View {
 
                 // MARK: - Kategori
                 Section("Kategori") {
-                    if interests.isEmpty {
+                    if hideInterestPicker {
+                        // tampilkan saja interest aktif, tidak bisa diubah
+                        if let interest = selectedInterest {
+                            InterestBadge(interest: interest, isSelected: true)
+                        }
+                    } else if interests.isEmpty {
                         Text("Buat kategori dulu")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     } else {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
-                                // opsi "Semua" / tanpa kategori
                                 Button {
                                     selectedInterest = nil
                                 } label: {
@@ -139,6 +145,9 @@ struct TaskEditorForm: View {
             .onAppear {
                 titleFocused = true
                 prefillIfEditing()
+                if selectedInterest == nil {
+                    selectedInterest = defaultInterest
+                }
             }
         }
     }
