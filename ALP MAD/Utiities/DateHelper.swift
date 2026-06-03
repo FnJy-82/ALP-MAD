@@ -40,4 +40,11 @@ enum DateHelper {
         formatter.dateFormat = "HH:mm"
         return formatter.string(from: date)
     }
+    
+    static func formattedDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM yyyy"
+        formatter.locale = Locale(identifier: "id_ID")
+        return formatter.string(from: date)
+    }
 }

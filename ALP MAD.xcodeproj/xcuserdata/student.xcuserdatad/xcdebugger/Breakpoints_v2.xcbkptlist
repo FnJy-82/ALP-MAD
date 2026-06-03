@@ -20,5 +20,19 @@
             landmarkType = "14">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "45264662-63F3-4B87-9B9E-C47F0FCADBE4"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../../../var/folders/dm/ztbhhlps7mbf1qwzz4t5xp0r0000gp/T/swift-generated-sources/@__swiftmacro_7ALP_MAD14TaskListScreenV12allInterests33_18A4E987C83D70BA07327DBDE5A35095LL5QueryfMp_.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1"
+            endingLineNumber = "1">
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

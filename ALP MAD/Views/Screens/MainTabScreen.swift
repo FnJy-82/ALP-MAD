@@ -24,9 +24,9 @@ struct MainTabScreen: View {
                     Label("Habits", systemImage: "flame")
                 }
 
-            Text("Tasks")
+            InterestListScreen(modelContext: modelContext)
                 .tabItem {
-                    Label("Tasks", systemImage: "list.bullet")
+                    Label("Kategori", systemImage: "tag")
                 }
         }
     }

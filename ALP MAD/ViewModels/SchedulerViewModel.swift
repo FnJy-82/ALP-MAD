@@ -99,6 +99,7 @@ final class SchedulerViewModel {
         let range = DateHelper.weekRange(containing: date)
         let rangeStart = range.start
         let rangeEnd = range.end
+
         let predicate = #Predicate<TimeBlockModel> { block in
             block.startTime >= rangeStart && block.startTime <= rangeEnd
         }
