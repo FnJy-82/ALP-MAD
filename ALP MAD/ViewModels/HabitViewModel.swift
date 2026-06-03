@@ -163,4 +163,15 @@ final class HabitViewModel {
             errorMessage = "Gagal menyimpan: \(error.localizedDescription)"
         }
     }
+    
+    func updateHabit(_ habit: HabitModel, name: String, colorHex: String) {
+        guard !name.trimmingCharacters(in: .whitespaces).isEmpty else {
+            errorMessage = "Nama habit tidak boleh kosong."
+            return
+        }
+        habit.name = name
+        habit.colorHex = colorHex
+        save()
+        fetchHabits()
+    }
 }

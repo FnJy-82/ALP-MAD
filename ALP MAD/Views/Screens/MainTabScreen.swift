@@ -19,9 +19,9 @@ struct MainTabScreen: View {
                 }
 
             //placeholder untuk FJ dan Hans
-            Text("Habits")
+            HabitTrackerScreen(modelContext: modelContext)
                 .tabItem {
-                    Label("Habits", systemImage: "checkmark.circle")
+                    Label("Habits", systemImage: "flame")
                 }
 
             Text("Tasks")
