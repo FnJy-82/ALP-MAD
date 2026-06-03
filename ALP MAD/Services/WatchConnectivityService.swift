@@ -4,7 +4,6 @@
 //
 //  Created by student on 28/05/26.
 //
-
 import Foundation
 import WatchConnectivity
 
@@ -52,7 +51,6 @@ final class WatchConnectivityService: NSObject, WCSessionDelegate {
     
     func sendHabits(_ habits: [HabitModel]) {
         guard WCSession.default.isReachable else { return }
-
         let payload = habits.map { habit in
             [
                 "id": habit.id.uuidString,
@@ -61,7 +59,6 @@ final class WatchConnectivityService: NSObject, WCSessionDelegate {
                 "streakCount": habit.streakCount
             ] as [String: Any]
         }
-
         WCSession.default.sendMessage(
             ["habits": payload],
             replyHandler: nil,
@@ -69,3 +66,5 @@ final class WatchConnectivityService: NSObject, WCSessionDelegate {
         )
     }
 }
+
+

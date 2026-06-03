@@ -1,5 +1,5 @@
 //
-//  Test.swift
+//  SchedulerViewModelTests.swift
 //  ALP MADTests
 //
 //  Created by student on 28/05/26.
@@ -10,18 +10,19 @@ import Testing
 import SwiftData
 @testable import ALP_MAD
 
-@Suite("SchedulerViewModel Tests")
+@Suite("SchedulerViewModel Tests", .serialized)
 @MainActor
 struct SchedulerViewModelTests {
-    
-    //Setup
+
     private func makeViewModel() throws -> SchedulerViewModel {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
-            for: TimeBlockModel.self, InterestModel.self,
+            for: TimeBlockModel.self, InterestModel.self, TaskModel.self,
+                HabitModel.self, HabitLogModel.self, PomodoroSessionModel.self,
             configurations: config
         )
-        return SchedulerViewModel(modelContext: container.mainContext)
+        let context = ModelContext(container)
+        return SchedulerViewModel(modelContext: context)
     }
 
     private func makeBlock(
@@ -42,9 +43,7 @@ struct SchedulerViewModelTests {
     func addValidBlock() throws {
         let vm = try makeViewModel()
         let block = makeBlock()
-
         vm.addBlock(block)
-
         #expect(vm.errorMessage == nil)
     }
 
@@ -52,9 +51,7 @@ struct SchedulerViewModelTests {
     func addBlockWithEmptyTitle() throws {
         let vm = try makeViewModel()
         let block = makeBlock(title: "   ")
-
         vm.addBlock(block)
-
         #expect(vm.errorMessage != nil)
     }
 
@@ -68,9 +65,7 @@ struct SchedulerViewModelTests {
             endTime: now.addingTimeInterval(-60),
             interestId: UUID()
         )
-
         vm.addBlock(block)
-
         #expect(vm.errorMessage != nil)
     }
 
@@ -79,15 +74,12 @@ struct SchedulerViewModelTests {
     func conflictingBlockRejected() throws {
         let vm = try makeViewModel()
         let now = Date.now
-
-        let first = makeBlock(start: now, durationMinutes: 60)
         vm.selectedDate = now
+        let first = makeBlock(start: now, durationMinutes: 60)
         vm.addBlock(first)
         vm.fetchBlocks(for: now)
-
         let overlapping = makeBlock(title: "Bentrok", start: now.addingTimeInterval(1800), durationMinutes: 60)
         vm.addBlock(overlapping)
-
         #expect(vm.errorMessage != nil)
     }
 
@@ -96,15 +88,12 @@ struct SchedulerViewModelTests {
     func deleteExistingBlock() throws {
         let vm = try makeViewModel()
         let now = Date.now
-        let block = makeBlock(start: now)
-
         vm.selectedDate = now
+        let block = makeBlock(start: now)
         vm.addBlock(block)
         vm.fetchBlocks(for: now)
-
         vm.deleteBlock(id: block.id)
         vm.fetchBlocks(for: now)
-
         #expect(vm.timeBlocks.isEmpty)
     }
 
@@ -114,7 +103,6 @@ struct SchedulerViewModelTests {
         let date = Date.now
         let start = DateHelper.startOfDay(date)
         let components = Calendar.current.dateComponents([.hour, .minute, .second], from: start)
-
         #expect(components.hour == 0)
         #expect(components.minute == 0)
         #expect(components.second == 0)
@@ -124,15 +112,13 @@ struct SchedulerViewModelTests {
     func isSameDayCorrect() {
         let a = Date.now
         let b = a.addingTimeInterval(3600)
-
         #expect(DateHelper.isSameDay(a, b) == true)
     }
 
     @Test("isSameDay salah untuk tanggal berbeda")
     func isSameDayWrongForDifferentDays() {
         let a = Date.now
-        let b = a.addingTimeInterval(86400 * 2)
-
+        let b = Calendar.current.date(byAdding: .day, value: 2, to: a)!
         #expect(DateHelper.isSameDay(a, b) == false)
     }
 
@@ -140,14 +126,12 @@ struct SchedulerViewModelTests {
     @Test("duration terhitung dengan benar")
     func blockDurationIsCorrect() {
         let block = makeBlock(durationMinutes: 90)
-
         #expect(block.duration == 90 * 60)
     }
 
     @Test("isValid false jika judul kosong")
     func blockIsInvalidWithEmptyTitle() {
         let block = makeBlock(title: "")
-
         #expect(block.isValid == false)
     }
 
@@ -160,8 +144,8 @@ struct SchedulerViewModelTests {
             endTime: now,
             interestId: UUID()
         )
-
         #expect(block.isValid == false)
     }
 }
+
 

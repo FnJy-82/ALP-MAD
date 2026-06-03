@@ -40,9 +40,10 @@ final class TaskViewModel {
             errorMessage = "Kategori dengan nama ini sudah ada."
             return
         }
-
         let interest = InterestModel(name: name, colorHex: colorHex)
-        modelContext.insert(interest)
+        if interest.modelContext == nil {
+            modelContext.insert(interest)
+        }
         save()
         fetchInterests()
     }

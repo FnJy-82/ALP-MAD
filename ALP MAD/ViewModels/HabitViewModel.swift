@@ -40,17 +40,27 @@ final class HabitViewModel {
     }
 
     func addHabit(name: String, colorHex: String) {
+        print("DEBUG: addHabit called with \(name)")
         let habit = HabitModel(name: name, colorHex: colorHex)
+        print("DEBUG: habit created, isValid = \(habit.isValid)")
         guard habit.isValid else {
             errorMessage = "Nama habit tidak boleh kosong."
             return
         }
+        print("DEBUG: about to insert")
         modelContext.insert(habit)
+        print("DEBUG: inserted")
         save()
+        print("DEBUG: saved")
         fetchHabits()
+        print("DEBUG: fetched, count = \(habits.count)")
     }
 
     func deleteHabit(_ habit: HabitModel) {
+        guard habit.modelContext != nil else {
+            errorMessage = "Habit tidak ditemukan."
+            return
+        }
         modelContext.delete(habit)
         save()
         fetchHabits()

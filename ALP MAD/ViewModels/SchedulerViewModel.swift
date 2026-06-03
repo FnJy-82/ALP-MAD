@@ -4,34 +4,32 @@
 //
 //  Created by student on 28/05/26.
 //
-
 import Foundation
 import SwiftData
 import Observation
+import WatchConnectivity
 
 @MainActor
 @Observable
 final class SchedulerViewModel {
-
     //Dependencies
     private let notificationService: NotificationService
     private let modelContext: ModelContext
-
     //State
     var timeBlocks: [TimeBlockModel] = []
     var selectedDate: Date = .now
     var errorMessage: String?
-
-    init(modelContext: ModelContext, notificationService: NotificationService = .shared) {
+    init(
+        modelContext: ModelContext,
+        notificationService: NotificationService = .shared
+    ) {
         self.modelContext = modelContext
         self.notificationService = notificationService
     }
-
     //Fetch
     func fetchBlocks(for date: Date) {
         let startOfDay = DateHelper.startOfDay(date)
         let endOfDay = DateHelper.endOfDay(date)
-
         let predicate = #Predicate<TimeBlockModel> { block in
             block.startTime >= startOfDay && block.startTime <= endOfDay
         }
@@ -39,14 +37,13 @@ final class SchedulerViewModel {
             predicate: predicate,
             sortBy: [SortDescriptor(\.startTime)]
         )
-
         do {
             timeBlocks = try modelContext.fetch(descriptor)
         } catch {
             errorMessage = "Gagal memuat jadwal: \(error.localizedDescription)"
         }
     }
-
+    
     //Add
     func addBlock(_ block: TimeBlockModel) {
         guard block.isValid else {
@@ -57,12 +54,21 @@ final class SchedulerViewModel {
             errorMessage = "Jadwal bentrok dengan blok waktu lain."
             return
         }
-
-        modelContext.insert(block)
+        print("DEBUG: creating newBlock")
+        let newBlock = TimeBlockModel(
+            id: block.id,
+            title: block.title,
+            startTime: block.startTime,
+            endTime: block.endTime,
+            interestId: block.interestId
+        )
+        modelContext.insert(newBlock)
         save()
-        WatchConnectivityService.shared.sendTimeBlocks(timeBlocks)
+        if WCSession.isSupported() {
+            WatchConnectivityService.shared.sendTimeBlocks(timeBlocks)
+        }
         fetchBlocks(for: selectedDate)
-        notificationService.scheduleNotification(for: block)
+        notificationService.scheduleNotification(for: newBlock)
     }
 
     //Delete
@@ -71,10 +77,11 @@ final class SchedulerViewModel {
         notificationService.cancelNotification(id: id)
         modelContext.delete(block)
         save()
-        WatchConnectivityService.shared.sendTimeBlocks(timeBlocks)
+        if WCSession.isSupported() {
+            WatchConnectivityService.shared.sendTimeBlocks(timeBlocks)
+        }
         fetchBlocks(for: selectedDate)
     }
-
     //Update
     func updateBlock(_ updated: TimeBlockModel) {
         guard updated.isValid else {
@@ -86,17 +93,19 @@ final class SchedulerViewModel {
         fetchBlocks(for: selectedDate)
         notificationService.scheduleNotification(for: updated)
     }
-
+    
     //Helpers
     func blocksForWeek(containing date: Date) -> [TimeBlockModel] {
         let range = DateHelper.weekRange(containing: date)
+        let rangeStart = range.start
+        let rangeEnd = range.end
         let predicate = #Predicate<TimeBlockModel> { block in
-            block.startTime >= range.start && block.startTime <= range.end
+            block.startTime >= rangeStart && block.startTime <= rangeEnd
         }
         let descriptor = FetchDescriptor<TimeBlockModel>(predicate: predicate)
         return (try? modelContext.fetch(descriptor)) ?? []
     }
-
+    
     private func hasConflict(with newBlock: TimeBlockModel, excluding id: UUID? = nil) -> Bool {
         timeBlocks
             .filter { $0.id != id }
@@ -105,7 +114,7 @@ final class SchedulerViewModel {
                 newBlock.endTime > existing.startTime
             }
     }
-
+    
     private func save() {
         do {
             try modelContext.save()

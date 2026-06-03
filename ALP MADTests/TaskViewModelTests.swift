@@ -3,17 +3,19 @@ import Foundation
 import SwiftData
 @testable import ALP_MAD
 
-@Suite("TaskViewModel Tests")
+@Suite("TaskViewModel Tests", .serialized)
 @MainActor
 struct TaskViewModelTests {
-
     private func makeViewModel() throws -> TaskViewModel {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
             for: InterestModel.self, TaskModel.self,
+                HabitModel.self, HabitLogModel.self, PomodoroSessionModel.self,
+                TimeBlockModel.self,
             configurations: config
         )
-        return TaskViewModel(modelContext: container.mainContext)
+        let context = ModelContext(container)
+        return TaskViewModel(modelContext: context)
     }
 
     //Interest Tests
