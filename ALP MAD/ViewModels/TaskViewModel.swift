@@ -32,18 +32,17 @@ final class TaskViewModel {
     }
 
     func addInterest(name: String, colorHex: String) {
-        guard !name.trimmingCharacters(in: .whitespaces).isEmpty else {
+        let trimmedName = name.trimmingCharacters(in: .whitespaces)
+        guard !trimmedName.isEmpty else {
             errorMessage = "Nama kategori tidak boleh kosong."
             return
         }
-        guard !isDuplicateInterest(name: name) else {
+        guard !isDuplicateInterest(name: trimmedName) else {
             errorMessage = "Kategori dengan nama ini sudah ada."
             return
         }
-        let interest = InterestModel(name: name, colorHex: colorHex)
-        if interest.modelContext == nil {
-            modelContext.insert(interest)
-        }
+        let interest = InterestModel(name: trimmedName, colorHex: colorHex)
+        modelContext.insert(interest)
         save()
         fetchInterests()
     }
@@ -96,6 +95,16 @@ final class TaskViewModel {
         fetchTasks(for: selectedInterest)
     }
 
+    func updateTask(_ task: TaskModel) {
+        // task adalah objek @Model yang sudah dimutasi oleh editor; cukup validasi + simpan.
+        guard task.isValid else {
+            errorMessage = "Judul tugas tidak boleh kosong."
+            return
+        }
+        save()
+        fetchTasks(for: selectedInterest)
+    }
+
     func toggleDone(_ task: TaskModel) {
         task.isDone.toggle()
         save()
@@ -138,9 +147,8 @@ final class TaskViewModel {
     }
 
     private func isDuplicateInterest(name: String) -> Bool {
-        interests.contains {
-            $0.name.lowercased() == name.lowercased().trimmingCharacters(in: .whitespaces)
-        }
+        let target = name.lowercased().trimmingCharacters(in: .whitespaces)
+        return interests.contains { $0.name.lowercased() == target }
     }
 
     private func save() {

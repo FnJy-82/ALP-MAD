@@ -159,6 +159,66 @@ struct TaskViewModelTests {
         #expect(vm.pendingTasks.count == 1)
         #expect(vm.completedTasks.count == 1)
     }
+
+    //Update Task Tests
+    @Test("Update task mengubah data tanpa menduplikasi")
+    func updateTaskNoDuplicate() throws {
+        let vm = try makeViewModel()
+        vm.addTask(title: "Lama", priority: .low, deadline: nil, to: nil)
+        vm.fetchTasks(for: nil)
+        let task = try #require(vm.tasks.first)
+
+        task.title = "Baru"
+        task.priority = .high
+        vm.updateTask(task)
+        vm.fetchTasks(for: nil)
+
+        #expect(vm.tasks.count == 1)                  // tidak menjadi 2 (bukti fix duplikat)
+        #expect(vm.tasks.first?.title == "Baru")
+        #expect(vm.tasks.first?.priority == .high)
+    }
+
+    @Test("Update task jadi judul kosong ditolak")
+    func updateTaskEmptyRejected() throws {
+        let vm = try makeViewModel()
+        vm.addTask(title: "Ada", priority: .low, deadline: nil, to: nil)
+        vm.fetchTasks(for: nil)
+        let task = try #require(vm.tasks.first)
+
+        task.title = "   "
+        vm.updateTask(task)
+        #expect(vm.errorMessage != nil)
+    }
+
+    //Filter Integrity Tests
+    @Test("Hapus task setelah selectInterest tetap memfilter kategori")
+    func deleteKeepsInterestFilter() throws {
+        let vm = try makeViewModel()
+        vm.addInterest(name: "Gaming", colorHex: "#FF0000")
+        vm.addInterest(name: "Music", colorHex: "#00FF00")
+        vm.fetchInterests()
+        let gaming = try #require(vm.interests.first { $0.name == "Gaming" })
+        let music = try #require(vm.interests.first { $0.name == "Music" })
+
+        vm.addTask(title: "Main", priority: .low, deadline: nil, to: gaming)
+        vm.addTask(title: "Latihan", priority: .low, deadline: nil, to: music)
+
+        vm.selectInterest(gaming)
+        #expect(vm.tasks.count == 1)
+
+        let task = try #require(vm.tasks.first)
+        vm.deleteTask(task)
+        #expect(vm.tasks.isEmpty)                      // kategori gaming kosong, tidak menampilkan task music
+    }
+
+    //Interest Trim Test
+    @Test("Nama interest di-trim sebelum disimpan")
+    func interestNameTrimmed() throws {
+        let vm = try makeViewModel()
+        vm.addInterest(name: "  Olahraga  ", colorHex: "#27AE60")
+        vm.fetchInterests()
+        #expect(vm.interests.first?.name == "Olahraga")
+    }
 }
 
 
