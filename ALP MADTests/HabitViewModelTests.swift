@@ -135,4 +135,89 @@ struct HabitViewModelTests {
 
         #expect(vm.isCompleted(habit: habit, on: .now) == false)
     }
+
+    //Streak Accuracy Tests
+    @Test("Streak menghitung hari berturut-turut")
+    func streakCountsConsecutiveDays() throws {
+        let container = try makeContainer()
+        let context = ModelContext(container)
+        let vm = HabitViewModel(modelContext: context)
+
+        vm.addHabit(name: "Lari", colorHex: "#FF0000")
+        vm.fetchHabits()
+        let habit = try #require(vm.habits.first)
+
+        let today = Date.now
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today)!
+        vm.markComplete(habit: habit, on: yesterday)
+        vm.markComplete(habit: habit, on: today)
+        vm.fetchHabits()
+
+        #expect(vm.habits.first?.streakCount == 2)
+    }
+
+    @Test("Streak 0 jika hari ini belum complete meski hari lalu pernah")
+    func streakZeroIfTodayNotDone() throws {
+        let container = try makeContainer()
+        let context = ModelContext(container)
+        let vm = HabitViewModel(modelContext: context)
+
+        vm.addHabit(name: "Lari", colorHex: "#FF0000")
+        vm.fetchHabits()
+        let habit = try #require(vm.habits.first)
+
+        let twoDaysAgo = Calendar.current.date(byAdding: .day, value: -2, to: .now)!
+        vm.markComplete(habit: habit, on: twoDaysAgo)
+        vm.fetchHabits()
+
+        #expect(vm.habits.first?.streakCount == 0)   // streak putus karena hari ini belum
+    }
+
+    @Test("Streak kembali 0 setelah un-complete hari ini")
+    func streakResetsAfterUncomplete() throws {
+        let container = try makeContainer()
+        let context = ModelContext(container)
+        let vm = HabitViewModel(modelContext: context)
+
+        vm.addHabit(name: "Lari", colorHex: "#FF0000")
+        vm.fetchHabits()
+        let habit = try #require(vm.habits.first)
+
+        let today = Date.now
+        vm.markComplete(habit: habit, on: today)   // streak 1
+        vm.markComplete(habit: habit, on: today)   // toggle off → streak 0
+        vm.fetchHabits()
+
+        #expect(vm.habits.first?.streakCount == 0)
+    }
+
+    @Test("markComplete tidak membuat log ganda untuk hari yang sama")
+    func markCompleteNoDuplicateLog() throws {
+        let container = try makeContainer()
+        let context = ModelContext(container)
+        let vm = HabitViewModel(modelContext: context)
+
+        vm.addHabit(name: "Membaca", colorHex: "#00FF00")
+        vm.fetchHabits()
+        let habit = try #require(vm.habits.first)
+
+        let today = Date.now
+        vm.markComplete(habit: habit, on: today)
+        vm.markComplete(habit: habit, on: today)   // tanpa fetchLogs manual di antara
+        vm.fetchLogs(for: today)
+
+        #expect(vm.logs.count == 1)
+    }
+
+    @Test("Nama habit di-trim sebelum disimpan")
+    func addHabitTrimsName() throws {
+        let container = try makeContainer()
+        let context = ModelContext(container)
+        let vm = HabitViewModel(modelContext: context)
+
+        vm.addHabit(name: "  Meditasi  ", colorHex: "#00FF00")
+        vm.fetchHabits()
+
+        #expect(vm.habits.first?.name == "Meditasi")
+    }
 }

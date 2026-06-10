@@ -40,20 +40,15 @@ final class HabitViewModel {
     }
 
     func addHabit(name: String, colorHex: String) {
-        print("DEBUG: addHabit called with \(name)")
-        let habit = HabitModel(name: name, colorHex: colorHex)
-        print("DEBUG: habit created, isValid = \(habit.isValid)")
-        guard habit.isValid else {
+        let trimmed = name.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else {
             errorMessage = "Nama habit tidak boleh kosong."
             return
         }
-        print("DEBUG: about to insert")
+        let habit = HabitModel(name: trimmed, colorHex: colorHex)
         modelContext.insert(habit)
-        print("DEBUG: inserted")
         save()
-        print("DEBUG: saved")
         fetchHabits()
-        print("DEBUG: fetched, count = \(habits.count)")
     }
 
     func deleteHabit(_ habit: HabitModel) {
@@ -81,6 +76,10 @@ final class HabitViewModel {
     }
 
     func markComplete(habit: HabitModel, on date: Date = .now) {
+        // refresh logs untuk tanggal ini dulu supaya cek "existing" tidak memakai state stale
+        // (mencegah log ganda untuk hari yang sama).
+        fetchLogs(for: date)
+
         let start = DateHelper.startOfDay(date)
         let end = DateHelper.endOfDay(date)
         let habitId = habit.id
@@ -94,18 +93,17 @@ final class HabitViewModel {
 
         if let existing {
             existing.isCompleted.toggle()
-            if !existing.isCompleted {
-                recalculateStreak(for: habit)
-            } else {
-                updateStreak(for: habit)
-            }
         } else {
             let log = HabitLogModel(date: date, isCompleted: true, habit: habit)
             modelContext.insert(log)
-            updateStreak(for: habit)
         }
 
+        // simpan dulu supaya recalculate membaca log terbaru dari context,
+        // lalu hitung ulang streak hari berturut-turut (akurat untuk complete & un-complete).
         save()
+        recalculateStreak(for: habit)
+        save()
+
         fetchLogs(for: date)
         fetchHabits()
     }
@@ -120,10 +118,6 @@ final class HabitViewModel {
                    $0.date <= end &&
                    $0.isCompleted
         }
-    }
-
-    private func updateStreak(for habit: HabitModel) {
-        habit.streakCount += 1
     }
 
     private func recalculateStreak(for habit: HabitModel) {
