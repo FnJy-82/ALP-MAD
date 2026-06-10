@@ -37,21 +37,24 @@ struct HabitListSection: View {
                 )
                 .frame(minHeight: 200)
             } else {
-                List {
+                // LazyVStack (bukan List) karena section ini berada di dalam ScrollView.
+                // List-in-ScrollView dengan tinggi paksa membuat baris ke-clip/kepotong.
+                LazyVStack(spacing: 0) {
                     ForEach(habitVM.habits) { habit in
                         HabitRowCard(
                             habit: habit,
                             isCompleted: habitVM.isCompleted(habit: habit),
                             onToggle: { habitVM.markComplete(habit: habit) },
-                            onEdit: {
-                                onEdit(habit)
-                            },
+                            onEdit: { onEdit(habit) },
                             onDelete: { habitVM.deleteHabit(habit) }
                         )
+                        .padding(.horizontal, 16)
+
+                        if habit.id != habitVM.habits.last?.id {
+                            Divider().padding(.leading, 16)
+                        }
                     }
                 }
-                .listStyle(.plain)
-                .frame(minHeight: CGFloat(habitVM.habits.count) * 72)
             }
         }
     }

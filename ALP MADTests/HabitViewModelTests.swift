@@ -220,4 +220,57 @@ struct HabitViewModelTests {
 
         #expect(vm.habits.first?.name == "Meditasi")
     }
+
+    @Test("currentStreak: kemarin & lusa selesai, hari ini belum → tetap 2 (tenggang hari ini)")
+    func currentStreakGraceForToday() throws {
+        let container = try makeContainer()
+        let context = ModelContext(container)
+        let vm = HabitViewModel(modelContext: context)
+
+        vm.addHabit(name: "Lari", colorHex: "#FF0000")
+        vm.fetchHabits()
+        let habit = try #require(vm.habits.first)
+
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: .now)!
+        let dayBefore = Calendar.current.date(byAdding: .day, value: -2, to: .now)!
+        vm.markCompleted(habit: habit, on: dayBefore)
+        vm.markCompleted(habit: habit, on: yesterday)
+        // hari ini sengaja TIDAK dicentang
+
+        vm.fetchHabits()
+        #expect(vm.habits.first?.currentStreak == 2)   // tenggang: hari ini belum tidak memutus
+    }
+
+    @Test("currentStreak 0 jika tidak ada hari yang selesai")
+    func currentStreakZeroWhenNoLogs() throws {
+        let container = try makeContainer()
+        let context = ModelContext(container)
+        let vm = HabitViewModel(modelContext: context)
+
+        vm.addHabit(name: "Lari", colorHex: "#FF0000")
+        vm.fetchHabits()
+        let habit = try #require(vm.habits.first)
+
+        #expect(habit.currentStreak == 0)
+    }
+
+    @Test("markCompleted idempoten — beberapa sesi Pomodoro tidak meng-uncheck habit")
+    func markCompletedIsIdempotent() throws {
+        let container = try makeContainer()
+        let context = ModelContext(container)
+        let vm = HabitViewModel(modelContext: context)
+
+        vm.addHabit(name: "Belajar", colorHex: "#0000FF")
+        vm.fetchHabits()
+        let habit = try #require(vm.habits.first)
+
+        let today = Date.now
+        vm.markCompleted(habit: habit, on: today)
+        vm.markCompleted(habit: habit, on: today)   // sesi Pomodoro kedua di hari sama
+        vm.fetchLogs(for: today)
+
+        #expect(vm.isCompleted(habit: habit, on: today) == true)   // tetap selesai
+        #expect(vm.logs.count == 1)                                 // tidak ada log ganda
+        #expect(vm.habits.first?.streakCount == 1)                  // streak tidak rusak
+    }
 }

@@ -15,14 +15,14 @@ struct WeeklyStreakBar: View {
     private let dayLabels = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"]
 
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 2) {
             ForEach(0..<7, id: \.self) { index in
                 VStack(spacing: 4) {
                     Circle()
                         .fill(index < days.count && days[index]
                               ? accentColor
                               : Color(.systemGray5))
-                        .frame(width: 28, height: 28)
+                        .frame(width: 26, height: 26)
                         .overlay {
                             if index < days.count && days[index] {
                                 Image(systemName: "checkmark")
@@ -33,8 +33,11 @@ struct WeeklyStreakBar: View {
 
                     Text(dayLabels[index])
                         .font(.system(size: 9))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                         .foregroundStyle(.secondary)
                 }
+                .frame(maxWidth: .infinity)   // distribusi rata, label tidak ke-wrap
             }
         }
     }
