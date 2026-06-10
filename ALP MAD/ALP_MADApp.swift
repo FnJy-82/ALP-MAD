@@ -20,7 +20,7 @@ struct ALP_MADApp: App {
             let isUITesting = ProcessInfo.processInfo.arguments.contains("UI_TESTING")
             let config = ModelConfiguration(isStoredInMemoryOnly: isUITesting)
             container = try ModelContainer(
-                for: TimeBlockModel.self, InterestModel.self, TaskModel.self, HabitModel.self, HabitLogModel.self,
+                for: TimeBlockModel.self, InterestModel.self, TaskModel.self, HabitModel.self, HabitLogModel.self, PomodoroSessionModel.self,
                 configurations: config
             )
 
