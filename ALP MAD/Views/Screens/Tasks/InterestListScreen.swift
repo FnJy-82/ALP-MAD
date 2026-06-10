@@ -38,6 +38,7 @@ struct InterestListScreen: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
+                        selectedInterest = nil
                         showInterestEditor = true
                     } label: {
                         Image(systemName: "plus")
@@ -48,8 +49,9 @@ struct InterestListScreen: View {
             .sheet(isPresented: $showInterestEditor, onDismiss: {
                 vm.fetchInterests()
                 vm.errorMessage = nil
+                selectedInterest = nil
             }) {
-                InterestEditorForm(vm: vm)
+                InterestEditorForm(vm: vm, existingInterest: selectedInterest)
             }
             .navigationDestination(for: InterestModel.self) { (interest: InterestModel) in
                 TaskListScreen(interest: interest, modelContext: modelContext)
@@ -67,10 +69,19 @@ struct InterestListScreen: View {
                     InterestListRow(interest: interest)
                 }
                 .accessibilityIdentifier("interest-row-\(interest.id)")
-            }
-            .onDelete { indexSet in
-                indexSet.forEach { index in
-                    vm.deleteInterest(interests[index])
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    Button(role: .destructive) {
+                        vm.deleteInterest(interest)
+                    } label: {
+                        Label("Hapus", systemImage: "trash")
+                    }
+                    Button {
+                        selectedInterest = interest
+                        showInterestEditor = true
+                    } label: {
+                        Label("Edit", systemImage: "pencil")
+                    }
+                    .tint(.blue)
                 }
             }
         }
@@ -81,12 +92,17 @@ struct InterestListScreen: View {
 private struct InterestListRow: View {
     let interest: InterestModel
 
-    private var pendingCount: Int {
-        interest.tasks.filter { !$0.isDone }.count
+    private var completedCount: Int {
+        interest.tasks.filter { $0.isDone }.count
     }
 
     private var totalCount: Int {
         interest.tasks.count
+    }
+
+    // Hijau hanya jika ada tugas DAN semuanya selesai (kategori kosong tidak hijau).
+    private var allDone: Bool {
+        totalCount > 0 && completedCount == totalCount
     }
 
     var body: some View {
@@ -100,9 +116,10 @@ private struct InterestListRow: View {
 
             Spacer()
 
-            Text("\(pendingCount)/\(totalCount) tugas")
+            // completed/total → angka naik saat tugas diselesaikan
+            Text("\(completedCount)/\(totalCount) tugas")
                 .font(.caption)
-                .foregroundStyle(pendingCount == 0 ? .green : .secondary)
+                .foregroundStyle(allDone ? .green : .secondary)
         }
         .padding(.vertical, 4)
     }

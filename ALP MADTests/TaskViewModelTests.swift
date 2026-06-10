@@ -219,6 +219,57 @@ struct TaskViewModelTests {
         vm.fetchInterests()
         #expect(vm.interests.first?.name == "Olahraga")
     }
+
+    //Update Interest Tests
+    @Test("Update interest mengubah nama & warna")
+    func updateInterestChangesNameColor() throws {
+        let vm = try makeViewModel()
+        vm.addInterest(name: "Gaming", colorHex: "#FF0000")
+        vm.fetchInterests()
+        let interest = try #require(vm.interests.first)
+
+        vm.updateInterest(interest, name: "Game", colorHex: "#00FF00")
+        vm.fetchInterests()
+
+        #expect(vm.interests.first?.name == "Game")
+        #expect(vm.interests.first?.colorHex == "#00FF00")
+        #expect(vm.errorMessage == nil)
+    }
+
+    @Test("Update interest nama kosong ditolak")
+    func updateInterestEmptyRejected() throws {
+        let vm = try makeViewModel()
+        vm.addInterest(name: "Gaming", colorHex: "#FF0000")
+        vm.fetchInterests()
+        let interest = try #require(vm.interests.first)
+
+        vm.updateInterest(interest, name: "   ", colorHex: "#00FF00")
+        #expect(vm.errorMessage != nil)
+    }
+
+    @Test("Update interest ke nama kategori lain (duplikat) ditolak")
+    func updateInterestDuplicateRejected() throws {
+        let vm = try makeViewModel()
+        vm.addInterest(name: "Gaming", colorHex: "#FF0000")
+        vm.addInterest(name: "Music", colorHex: "#00FF00")
+        vm.fetchInterests()
+        let music = try #require(vm.interests.first { $0.name == "Music" })
+
+        vm.updateInterest(music, name: "Gaming", colorHex: "#0000FF")
+        #expect(vm.errorMessage != nil)
+    }
+
+    @Test("Update interest dengan nama sendiri tetap diizinkan (bukan duplikat dirinya)")
+    func updateInterestSameNameAllowed() throws {
+        let vm = try makeViewModel()
+        vm.addInterest(name: "Gaming", colorHex: "#FF0000")
+        vm.fetchInterests()
+        let interest = try #require(vm.interests.first)
+
+        vm.updateInterest(interest, name: "Gaming", colorHex: "#123456")
+        #expect(vm.errorMessage == nil)
+        #expect(vm.interests.first?.colorHex == "#123456")
+    }
 }
 
 
