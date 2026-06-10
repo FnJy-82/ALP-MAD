@@ -28,6 +28,14 @@ struct TimeBlockEditorForm: View {
         title.trimmingCharacters(in: .whitespaces).isEmpty || selectedInterestId == nil
     }
 
+    // Clamp agar lowerBound tidak pernah melewati upperBound (mencegah crash ClosedRange
+    // saat startTime mendekati tengah malam).
+    private var endTimeRange: ClosedRange<Date> {
+        let upper = DateHelper.endOfDay(selectedDate)
+        let lower = min(startTime.addingTimeInterval(15 * 60), upper)
+        return lower...upper
+    }
+
     var body: some View {
         NavigationStack {
             Form {
@@ -80,7 +88,7 @@ struct TimeBlockEditorForm: View {
                     DatePicker(
                         "Selesai",
                         selection: $endTime,
-                        in: startTime.addingTimeInterval(15 * 60)...DateHelper.endOfDay(selectedDate),
+                        in: endTimeRange,
                         displayedComponents: .hourAndMinute
                     )
                     .accessibilityIdentifier("block-end-picker")
@@ -137,6 +145,7 @@ struct TimeBlockEditorForm: View {
         selectedInterestId = block.interestId
         startTime = block.startTime
         endTime = block.endTime
+        notifyOnStart = block.notifyOnStart
     }
 
     private func saveBlock() {
@@ -147,13 +156,15 @@ struct TimeBlockEditorForm: View {
             existing.startTime = startTime
             existing.endTime = endTime
             existing.interestId = interestId
+            existing.notifyOnStart = notifyOnStart
             vm.updateBlock(existing)
         } else {
             let block = TimeBlockModel(
                 title: title,
                 startTime: startTime,
                 endTime: endTime,
-                interestId: interestId
+                interestId: interestId,
+                notifyOnStart: notifyOnStart
             )
             vm.addBlock(block)
         }

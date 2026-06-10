@@ -13,7 +13,7 @@ import WatchConnectivity
 @Observable
 final class SchedulerViewModel {
     //Dependencies
-    private let notificationService: NotificationService
+    private let notificationService: NotificationScheduling
     private let modelContext: ModelContext
     //State
     var timeBlocks: [TimeBlockModel] = []
@@ -21,7 +21,7 @@ final class SchedulerViewModel {
     var errorMessage: String?
     init(
         modelContext: ModelContext,
-        notificationService: NotificationService = .shared
+        notificationService: NotificationScheduling = NotificationService.shared
     ) {
         self.modelContext = modelContext
         self.notificationService = notificationService
@@ -62,7 +62,9 @@ final class SchedulerViewModel {
         modelContext.insert(block)
         save()
         fetchBlocks(for: block.startTime)  // ← fetch by startTime block, bukan selectedDate
-        notificationService.scheduleNotification(for: block)
+        if block.notifyOnStart {
+            notificationService.scheduleNotification(for: block)
+        }
         WatchConnectivityService.shared.sendTimeBlocks(timeBlocks)
     }
 
@@ -72,10 +74,11 @@ final class SchedulerViewModel {
         notificationService.cancelNotification(id: id)
         modelContext.delete(block)
         save()
+        fetchBlocks(for: selectedDate)  // refresh dulu supaya block terhapus hilang dari list
         if WCSession.isSupported() {
+            // baru kirim list terbaru ke watch (tanpa block yang sudah dihapus)
             WatchConnectivityService.shared.sendTimeBlocks(timeBlocks)
         }
-        fetchBlocks(for: selectedDate)
     }
     //Update
     func updateBlock(_ updated: TimeBlockModel) {
@@ -83,10 +86,23 @@ final class SchedulerViewModel {
             errorMessage = "Jadwal tidak valid."
             return
         }
+
+        // fetch dulu untuk hari block yang diupdate, lalu cek bentrok.
+        // excluding: agar block ini sendiri tidak dianggap bentrok dengan dirinya.
+        fetchBlocks(for: updated.startTime)
+
+        guard !hasConflict(with: updated, excluding: updated.id) else {
+            errorMessage = "Jadwal bentrok dengan blok waktu lain."
+            return
+        }
+
         notificationService.cancelNotification(id: updated.id)
         save()
-        fetchBlocks(for: selectedDate)
-        notificationService.scheduleNotification(for: updated)
+        fetchBlocks(for: updated.startTime)
+        if updated.notifyOnStart {
+            notificationService.scheduleNotification(for: updated)
+        }
+        WatchConnectivityService.shared.sendTimeBlocks(timeBlocks)
     }
     
     //Helpers

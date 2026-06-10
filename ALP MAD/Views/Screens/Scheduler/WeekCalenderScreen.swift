@@ -76,10 +76,8 @@ struct WeekCalendarScreen: View {
                 }
             }
         }
-        .onAppear {
-            //fetch blocks untuk semua hari di minggu ini
-            weekDays.forEach { vm.fetchBlocks(for: $0) }
-        }
+        // Catatan: blocksOverlay mengambil datanya sendiri lewat vm.blocksForWeek(containing:),
+        // jadi tidak perlu fetchBlocks di onAppear (yang justru menimpa state harian vm.timeBlocks).
     }
 
     //Grid
@@ -158,7 +156,6 @@ struct WeekCalendarScreen: View {
                             .foregroundStyle(color.isLight ? .black : .white)
                             .lineLimit(2)
                             .padding(2)
-                            .offset(x: leadingOff, y: 40 + topOff)
                     }
             }
         }
