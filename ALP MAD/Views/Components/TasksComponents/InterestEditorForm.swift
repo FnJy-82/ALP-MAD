@@ -11,6 +11,7 @@ struct InterestEditorForm: View {
     @Environment(\.dismiss) private var dismiss
 
     let vm: TaskViewModel
+    var existingInterest: InterestModel? = nil
 
     @State private var name: String = ""
     @State private var selectedColorHex: String = "#4A90D9"
@@ -19,6 +20,8 @@ struct InterestEditorForm: View {
         "#4A90D9", "#27AE60", "#E67E22", "#E74C3C",
         "#9B59B6", "#1ABC9C", "#F39C12", "#2C3E50"
     ]
+
+    private var isEditing: Bool { existingInterest != nil }
 
     private var isSaveDisabled: Bool {
         name.trimmingCharacters(in: .whitespaces).isEmpty
@@ -74,7 +77,7 @@ struct InterestEditorForm: View {
                     }
                 }
             }
-            .navigationTitle("Kategori Baru")
+            .navigationTitle(isEditing ? "Edit Kategori" : "Kategori Baru")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -83,11 +86,21 @@ struct InterestEditorForm: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Simpan") {
-                        vm.addInterest(name: name, colorHex: selectedColorHex)
+                        if let existing = existingInterest {
+                            vm.updateInterest(existing, name: name, colorHex: selectedColorHex)
+                        } else {
+                            vm.addInterest(name: name, colorHex: selectedColorHex)
+                        }
                         if vm.errorMessage == nil { dismiss() }
                     }
                     .disabled(isSaveDisabled)
                     .accessibilityIdentifier("save-interest-button")
+                }
+            }
+            .onAppear {
+                if let existing = existingInterest {
+                    name = existing.name
+                    selectedColorHex = existing.colorHex
                 }
             }
         }

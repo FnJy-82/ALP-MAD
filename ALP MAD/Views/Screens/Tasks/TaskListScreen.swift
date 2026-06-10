@@ -19,7 +19,7 @@ struct TaskListScreen: View {
     @State private var vm: TaskViewModel
     @State private var showTaskEditor = false
     @State private var selectedTask: TaskModel? = nil
-    @State private var showCompleted = false
+    @State private var showCompleted = true   // default tampilkan tugas selesai (tombol mata utk sembunyikan)
 
     init(interest: InterestModel, modelContext: ModelContext) {
         self.interest = interest

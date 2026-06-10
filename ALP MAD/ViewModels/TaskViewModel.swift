@@ -47,6 +47,23 @@ final class TaskViewModel {
         fetchInterests()
     }
 
+    func updateInterest(_ interest: InterestModel, name: String, colorHex: String) {
+        let trimmedName = name.trimmingCharacters(in: .whitespaces)
+        guard !trimmedName.isEmpty else {
+            errorMessage = "Nama kategori tidak boleh kosong."
+            return
+        }
+        // izinkan nama sama dengan dirinya sendiri (excluding), tolak jika bentrok kategori lain
+        guard !isDuplicateInterest(name: trimmedName, excluding: interest.id) else {
+            errorMessage = "Kategori dengan nama ini sudah ada."
+            return
+        }
+        interest.name = trimmedName
+        interest.colorHex = colorHex
+        save()
+        fetchInterests()
+    }
+
     func deleteInterest(_ interest: InterestModel) {
         modelContext.delete(interest)
         if selectedInterest?.id == interest.id {
@@ -146,9 +163,9 @@ final class TaskViewModel {
         }
     }
 
-    private func isDuplicateInterest(name: String) -> Bool {
+    private func isDuplicateInterest(name: String, excluding id: UUID? = nil) -> Bool {
         let target = name.lowercased().trimmingCharacters(in: .whitespaces)
-        return interests.contains { $0.name.lowercased() == target }
+        return interests.contains { $0.id != id && $0.name.lowercased() == target }
     }
 
     private func save() {
