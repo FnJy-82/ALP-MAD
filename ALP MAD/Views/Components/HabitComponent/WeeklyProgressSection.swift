@@ -23,22 +23,19 @@ struct WeeklyProgressSection: View {
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 16)
             } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(habits) { habit in
-                            WeeklyHabitCard(habit: habit)
-                        }
+                // Layout vertikal: satu baris penuh per habit, semua habit langsung terlihat.
+                VStack(spacing: 12) {
+                    ForEach(habits) { habit in
+                        WeeklyHabitRow(habit: habit)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 4)
                 }
+                .padding(.horizontal, 16)
             }
         }
     }
 }
 
-// Extracted card supaya WeeklyProgressSection tetap pendek
-private struct WeeklyHabitCard: View {
+private struct WeeklyHabitRow: View {
     let habit: HabitModel
 
     private var color: Color { Color(hex: habit.colorHex) }
@@ -57,8 +54,7 @@ private struct WeeklyHabitCard: View {
             ) else { return false }
             let start = DateHelper.startOfDay(day)
             let end   = DateHelper.endOfDay(day)
-            // Baca dari relasi habit.logs (semua log habit ini), bukan habitVM.logs
-            // yang hanya berisi log satu hari terakhir yang di-fetch.
+            // Baca dari relasi habit.logs (semua log habit ini), bukan log satu hari.
             return habit.logs.contains {
                 $0.isCompleted && $0.date >= start && $0.date <= end
             }
@@ -73,14 +69,15 @@ private struct WeeklyHabitCard: View {
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .lineLimit(1)
+                Spacer()
+                Text("🔥 \(habit.currentStreak) hari")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
             WeeklyStreakBar(days: weekDays, accentColor: color)
-            Text("🔥 \(habit.currentStreak) hari beruntun")
-                .font(.caption)
-                .foregroundStyle(.secondary)
         }
         .padding(14)
-        .frame(width: 220)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 14)
                 .fill(Color(.secondarySystemGroupedBackground))
@@ -91,5 +88,3 @@ private struct WeeklyHabitCard: View {
         )
     }
 }
-
-
