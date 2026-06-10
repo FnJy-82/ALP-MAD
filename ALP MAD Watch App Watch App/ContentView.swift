@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 import WatchConnectivity
 
 // MARK: - Lightweight models (di-decode dari payload yang dikirim iPhone)
