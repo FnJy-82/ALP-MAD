@@ -38,37 +38,47 @@ final class WatchConnectivityProvider: NSObject, ObservableObject, WCSessionDele
     }
 
     private func apply(_ data: [String: Any]) {
-        if let raw = data["timeBlocks"] as? [[String: Any]] {
-            let parsed = raw.compactMap { d -> WatchTimeBlock? in
-                guard
-                    let id = d["id"] as? String,
-                    let title = d["title"] as? String,
-                    let start = d["startTime"] as? TimeInterval,
-                    let end = d["endTime"] as? TimeInterval
-                else { return nil }
-                return WatchTimeBlock(
-                    id: id,
-                    title: title,
-                    start: Date(timeIntervalSince1970: start),
-                    end: Date(timeIntervalSince1970: end)
-                )
-            }
-            timeBlocks = parsed.sorted { $0.start < $1.start }
+        if data["timeBlocks"] != nil {
+            timeBlocks = Self.parseTimeBlocks(data)
         }
+        if data["habits"] != nil {
+            habits = Self.parseHabits(data)
+        }
+    }
 
-        if let raw = data["habits"] as? [[String: Any]] {
-            habits = raw.compactMap { d -> WatchHabit? in
-                guard
-                    let id = d["id"] as? String,
-                    let name = d["name"] as? String
-                else { return nil }
-                return WatchHabit(
-                    id: id,
-                    name: name,
-                    colorHex: d["colorHex"] as? String ?? "#A0A0A0",
-                    streak: d["streakCount"] as? Int ?? 0
-                )
-            }
+    // Fungsi parsing MURNI (static) — bisa di-unit-test tanpa WCSession/instance.
+    static func parseTimeBlocks(_ data: [String: Any]) -> [WatchTimeBlock] {
+        guard let raw = data["timeBlocks"] as? [[String: Any]] else { return [] }
+        let parsed = raw.compactMap { d -> WatchTimeBlock? in
+            guard
+                let id = d["id"] as? String,
+                let title = d["title"] as? String,
+                let start = d["startTime"] as? TimeInterval,
+                let end = d["endTime"] as? TimeInterval
+            else { return nil }
+            return WatchTimeBlock(
+                id: id,
+                title: title,
+                start: Date(timeIntervalSince1970: start),
+                end: Date(timeIntervalSince1970: end)
+            )
+        }
+        return parsed.sorted { $0.start < $1.start }
+    }
+
+    static func parseHabits(_ data: [String: Any]) -> [WatchHabit] {
+        guard let raw = data["habits"] as? [[String: Any]] else { return [] }
+        return raw.compactMap { d -> WatchHabit? in
+            guard
+                let id = d["id"] as? String,
+                let name = d["name"] as? String
+            else { return nil }
+            return WatchHabit(
+                id: id,
+                name: name,
+                colorHex: d["colorHex"] as? String ?? "#A0A0A0",
+                streak: d["streakCount"] as? Int ?? 0
+            )
         }
     }
 
