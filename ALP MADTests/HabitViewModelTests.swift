@@ -220,4 +220,24 @@ struct HabitViewModelTests {
 
         #expect(vm.habits.first?.name == "Meditasi")
     }
+
+    @Test("markCompleted idempoten — beberapa sesi Pomodoro tidak meng-uncheck habit")
+    func markCompletedIsIdempotent() throws {
+        let container = try makeContainer()
+        let context = ModelContext(container)
+        let vm = HabitViewModel(modelContext: context)
+
+        vm.addHabit(name: "Belajar", colorHex: "#0000FF")
+        vm.fetchHabits()
+        let habit = try #require(vm.habits.first)
+
+        let today = Date.now
+        vm.markCompleted(habit: habit, on: today)
+        vm.markCompleted(habit: habit, on: today)   // sesi Pomodoro kedua di hari sama
+        vm.fetchLogs(for: today)
+
+        #expect(vm.isCompleted(habit: habit, on: today) == true)   // tetap selesai
+        #expect(vm.logs.count == 1)                                 // tidak ada log ganda
+        #expect(vm.habits.first?.streakCount == 1)                  // streak tidak rusak
+    }
 }

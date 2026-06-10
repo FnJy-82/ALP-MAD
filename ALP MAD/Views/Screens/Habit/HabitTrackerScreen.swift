@@ -119,7 +119,9 @@ struct HabitTrackerScreen: View {
                 pomodoroVM.setupBackgroundObservers()      
                 pomodoroVM.onFocusSessionCompleted = {
                     if let habit = pomodoroVM.linkedHabit {
-                        habitVM.markComplete(habit: habit)
+                        // pakai markCompleted (idempoten) — bukan markComplete (toggle) —
+                        // supaya menyelesaikan beberapa sesi di hari sama tidak meng-uncheck habit.
+                        habitVM.markCompleted(habit: habit)
                     }
                 }
             }

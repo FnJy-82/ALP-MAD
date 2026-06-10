@@ -108,6 +108,38 @@ final class HabitViewModel {
         fetchHabits()
     }
 
+    /// Tandai habit SELESAI untuk tanggal tsb tanpa toggle (idempoten).
+    /// Dipakai saat sesi Pomodoro selesai — menyelesaikan beberapa sesi di hari
+    /// yang sama tidak boleh malah meng-uncheck habit (beda dengan markComplete).
+    func markCompleted(habit: HabitModel, on date: Date = .now) {
+        fetchLogs(for: date)
+
+        let start = DateHelper.startOfDay(date)
+        let end = DateHelper.endOfDay(date)
+        let habitId = habit.id
+
+        let existing = logs.first {
+            guard let logHabit = $0.habit else { return false }
+            return logHabit.id == habitId &&
+                   $0.date >= start &&
+                   $0.date <= end
+        }
+
+        if let existing {
+            existing.isCompleted = true
+        } else {
+            let log = HabitLogModel(date: date, isCompleted: true, habit: habit)
+            modelContext.insert(log)
+        }
+
+        save()
+        recalculateStreak(for: habit)
+        save()
+
+        fetchLogs(for: date)
+        fetchHabits()
+    }
+
     func isCompleted(habit: HabitModel, on date: Date = .now) -> Bool {
         let start = DateHelper.startOfDay(date)
         let end = DateHelper.endOfDay(date)
