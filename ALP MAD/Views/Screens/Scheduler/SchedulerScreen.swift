@@ -92,6 +92,7 @@ struct SchedulerScreen: View {
             }
             .onAppear {
                 vm.fetchBlocks(for: vm.selectedDate)
+                WatchConnectivityService.shared.sendTimeBlocks(vm.timeBlocks)   // sync ke Apple Watch
             }
         }
     }

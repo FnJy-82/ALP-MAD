@@ -115,7 +115,8 @@ struct HabitTrackerScreen: View {
                 NotificationService.shared.requestPermission()
                 habitVM.fetchHabits()
                 habitVM.fetchLogs(for: .now)
-                pomodoroVM.setupBackgroundObservers()      
+                habitVM.syncToWatch()                       // sync habit ke Apple Watch
+                pomodoroVM.setupBackgroundObservers()
                 pomodoroVM.onFocusSessionCompleted = {
                     if let habit = pomodoroVM.linkedHabit {
                         // pakai markCompleted (idempoten) — bukan markComplete (toggle) —

@@ -49,6 +49,7 @@ final class HabitViewModel {
         modelContext.insert(habit)
         save()
         fetchHabits()
+        syncToWatch()
     }
 
     func deleteHabit(_ habit: HabitModel) {
@@ -59,6 +60,7 @@ final class HabitViewModel {
         modelContext.delete(habit)
         save()
         fetchHabits()
+        syncToWatch()
     }
 
     func fetchLogs(for date: Date) {
@@ -106,6 +108,7 @@ final class HabitViewModel {
 
         fetchLogs(for: date)
         fetchHabits()
+        syncToWatch()
     }
 
     /// Tandai habit SELESAI untuk tanggal tsb tanpa toggle (idempoten).
@@ -138,6 +141,7 @@ final class HabitViewModel {
 
         fetchLogs(for: date)
         fetchHabits()
+        syncToWatch()
     }
 
     func isCompleted(habit: HabitModel, on date: Date = .now) -> Bool {
@@ -178,5 +182,6 @@ final class HabitViewModel {
         habit.colorHex = colorHex
         save()
         fetchHabits()
+        syncToWatch()
     }
 }
