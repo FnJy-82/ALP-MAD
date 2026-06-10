@@ -16,6 +16,7 @@ struct ALP_MADApp: App {
 
     init() {
         UNUserNotificationCenter.current().delegate = AppNotificationDelegate.shared
+        WatchConnectivityService.shared.activate()   // aktifkan koneksi ke Apple Watch
         do {
             let isUITesting = ProcessInfo.processInfo.arguments.contains("UI_TESTING")
             let config = ModelConfiguration(isStoredInMemoryOnly: isUITesting)
