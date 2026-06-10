@@ -13,7 +13,7 @@ import WatchConnectivity
 @Observable
 final class SchedulerViewModel {
     //Dependencies
-    private let notificationService: NotificationService
+    private let notificationService: NotificationScheduling
     private let modelContext: ModelContext
     //State
     var timeBlocks: [TimeBlockModel] = []
@@ -21,7 +21,7 @@ final class SchedulerViewModel {
     var errorMessage: String?
     init(
         modelContext: ModelContext,
-        notificationService: NotificationService = .shared
+        notificationService: NotificationScheduling = NotificationService.shared
     ) {
         self.modelContext = modelContext
         self.notificationService = notificationService
@@ -62,7 +62,9 @@ final class SchedulerViewModel {
         modelContext.insert(block)
         save()
         fetchBlocks(for: block.startTime)  // ← fetch by startTime block, bukan selectedDate
-        notificationService.scheduleNotification(for: block)
+        if block.notifyOnStart {
+            notificationService.scheduleNotification(for: block)
+        }
         WatchConnectivityService.shared.sendTimeBlocks(timeBlocks)
     }
 
@@ -97,7 +99,9 @@ final class SchedulerViewModel {
         notificationService.cancelNotification(id: updated.id)
         save()
         fetchBlocks(for: updated.startTime)
-        notificationService.scheduleNotification(for: updated)
+        if updated.notifyOnStart {
+            notificationService.scheduleNotification(for: updated)
+        }
         WatchConnectivityService.shared.sendTimeBlocks(timeBlocks)
     }
     

@@ -8,8 +8,15 @@
 import Foundation
 import UserNotifications
 
+// Abstraksi supaya ViewModel bisa di-test dengan mock (tanpa memanggil UNUserNotificationCenter asli).
 @MainActor
-final class NotificationService {
+protocol NotificationScheduling {
+    func scheduleNotification(for block: TimeBlockModel)
+    func cancelNotification(id: UUID)
+}
+
+@MainActor
+final class NotificationService: NotificationScheduling {
 
     static let shared = NotificationService()
     private let center = UNUserNotificationCenter.current()

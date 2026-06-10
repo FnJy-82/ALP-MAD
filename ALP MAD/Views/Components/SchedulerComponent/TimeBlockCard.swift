@@ -27,13 +27,6 @@ struct TimeBlockCard: View {
         return CGFloat(minutes) * (hourHeight / 60)
     }
 
-    private var topOffset: CGFloat {
-        let calendar = Calendar.current
-        let hour = calendar.component(.hour, from: block.startTime)
-        let minute = calendar.component(.minute, from: block.startTime)
-        return CGFloat(hour * 60 + minute) * (hourHeight / 60)
-    }
-
     var body: some View {
         HStack(spacing: 0) {
             //color accent bar di kiri
