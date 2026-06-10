@@ -27,6 +27,15 @@ struct TimeBlockCard: View {
         return CGFloat(minutes) * (hourHeight / 60)
     }
 
+    // Waktu + nama kategori, mis. "09:00 – 10:00 · Kuliah"
+    private var timeRangeText: String {
+        let range = "\(DateHelper.formattedTime(block.startTime)) – \(DateHelper.formattedTime(block.endTime))"
+        if let name = interest?.name, !name.isEmpty {
+            return "\(range) · \(name)"
+        }
+        return range
+    }
+
     var body: some View {
         HStack(spacing: 0) {
             //color accent bar di kiri
@@ -41,8 +50,9 @@ struct TimeBlockCard: View {
                     .foregroundStyle(blockColor.isLight ? .black : .white)
                     .lineLimit(1)
 
-                Text("\(DateHelper.formattedTime(block.startTime)) – \(DateHelper.formattedTime(block.endTime))")
+                Text(timeRangeText)
                     .font(.caption)
+                    .lineLimit(1)
                     .foregroundStyle(
                         (blockColor.isLight ? Color.black : Color.white)
                             .opacity(0.7)

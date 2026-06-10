@@ -427,6 +427,17 @@ struct SchedulerViewModelTests {
         #expect(spy.cancelledIds.contains(block.id))                       // update selalu cancel dulu
         #expect(spy.scheduledIds.filter { $0 == block.id }.count == 1)     // tidak ada penjadwalan kedua
     }
+
+    //Past-day Rule Test
+    @Test("canCreateBlock: hari lalu tidak boleh, hari ini & besok boleh")
+    func canCreateBlockRules() throws {
+        let vm = try makeViewModel()
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: .now)!
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: .now)!
+        #expect(vm.canCreateBlock(on: yesterday) == false)
+        #expect(vm.canCreateBlock(on: .now) == true)
+        #expect(vm.canCreateBlock(on: tomorrow) == true)
+    }
 }
 
 // Mock untuk memverifikasi pemanggilan notifikasi tanpa efek samping nyata.

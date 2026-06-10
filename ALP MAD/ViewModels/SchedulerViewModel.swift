@@ -106,6 +106,11 @@ final class SchedulerViewModel {
     }
     
     //Helpers
+    /// Hari yang sudah lewat tidak boleh dibuatkan blok baru (hari ini & ke depan boleh).
+    func canCreateBlock(on date: Date) -> Bool {
+        DateHelper.startOfDay(date) >= DateHelper.startOfDay(.now)
+    }
+
     func blocksForWeek(containing date: Date) -> [TimeBlockModel] {
         let range = DateHelper.weekRange(containing: date)
         let rangeStart = range.start

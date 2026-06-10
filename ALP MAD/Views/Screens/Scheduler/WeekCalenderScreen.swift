@@ -146,17 +146,19 @@ struct WeekCalendarScreen: View {
                 let blockH = cardHeight(for: block)
                 let leadingOff: CGFloat = 44 + CGFloat(index) * 80 + 2
 
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(color.opacity(0.7))
-                    .frame(width: 76, height: blockH)
+                // Judul kegiatan DI DALAM blok, dibatasi & di-clip ke ukuran blok
+                // supaya teks panjang tidak meluber keluar / menumpuk di dekat tanggal.
+                Text(block.title)
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundStyle(color.isLight ? .black : .white)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.6)
+                    .padding(.horizontal, 3)
+                    .padding(.vertical, 2)
+                    .frame(width: 76, height: blockH, alignment: .topLeading)
+                    .background(color.opacity(0.7))
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
                     .offset(x: leadingOff, y: 40 + topOff)
-                    .overlay(alignment: .topLeading) {
-                        Text(block.title)
-                            .font(.system(size: 9))
-                            .foregroundStyle(color.isLight ? .black : .white)
-                            .lineLimit(2)
-                            .padding(2)
-                    }
             }
         }
     }

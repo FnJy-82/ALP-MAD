@@ -35,7 +35,9 @@ struct SchedulerScreen: View {
                     EmptyStateView(
                         icon: "calendar.badge.plus",
                         title: "Belum ada jadwal",
-                        subtitle: "Tap + untuk menambahkan blok waktu pertamamu"
+                        subtitle: vm.canCreateBlock(on: vm.selectedDate)
+                            ? "Tap + untuk menambahkan blok waktu pertamamu"
+                            : "Hari ini sudah lewat — tidak bisa menambah jadwal baru"
                     )
                 } else {
                     TimelineView(
@@ -69,6 +71,7 @@ struct SchedulerScreen: View {
                     } label: {
                         Image(systemName: "plus")
                     }
+                    .disabled(!vm.canCreateBlock(on: vm.selectedDate))   // hari lewat: tidak bisa tambah
                     .accessibilityIdentifier("add-block-button")
                 }
             }
