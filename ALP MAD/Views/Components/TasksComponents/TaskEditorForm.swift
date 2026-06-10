@@ -167,12 +167,7 @@ struct TaskEditorForm: View {
             task.priority = priority
             task.deadline = hasDeadline ? deadline : nil
             task.interest = selectedInterest
-            vm.addTask(
-                title: task.title,
-                priority: task.priority,
-                deadline: task.deadline,
-                to: task.interest
-            )
+            vm.updateTask(task)
         } else {
             vm.addTask(
                 title: title,

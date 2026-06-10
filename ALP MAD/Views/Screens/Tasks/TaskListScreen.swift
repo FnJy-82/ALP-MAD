@@ -74,7 +74,9 @@ struct TaskListScreen: View {
             )
         }
         .onAppear {
-            vm.fetchTasks(for: interest)
+            // set selectedInterest supaya refetch internal (delete/toggle) tetap terfilter
+            // ke kategori ini, bukan menampilkan semua task lintas kategori.
+            vm.selectInterest(interest)
         }
     }
 
