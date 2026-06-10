@@ -89,15 +89,6 @@ struct HabitRowCard: View {
                 Label("Hapus", systemImage: "trash")
             }
         }
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-            Button(role: .destructive, action: onDelete) {
-                Label("Hapus", systemImage: "trash")
-            }
-            Button(action: onEdit) {
-                Label("Edit", systemImage: "pencil")
-            }
-            .tint(.blue)
-        }
         .accessibilityIdentifier("habit-row-\(habit.id)")
     }
 }
