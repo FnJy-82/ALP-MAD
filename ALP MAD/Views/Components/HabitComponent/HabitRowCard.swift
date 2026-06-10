@@ -40,12 +40,12 @@ struct HabitRowCard: View {
                     .strikethrough(isCompleted, color: .secondary)
                     .lineLimit(1)
 
-                // Streak badge
-                if habit.streakCount > 0 {
+                // Streak badge (diturunkan dari logs, selalu konsisten)
+                if habit.currentStreak > 0 {
                     HStack(spacing: 3) {
                         Text("🔥")
                             .font(.caption2)
-                        Text("\(habit.streakCount) hari")
+                        Text("\(habit.currentStreak) hari")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }

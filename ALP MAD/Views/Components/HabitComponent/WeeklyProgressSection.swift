@@ -75,7 +75,7 @@ private struct WeeklyHabitCard: View {
                     .lineLimit(1)
             }
             WeeklyStreakBar(days: weekDays, accentColor: color)
-            Text("🔥 \(habit.streakCount) hari beruntun")
+            Text("🔥 \(habit.currentStreak) hari beruntun")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

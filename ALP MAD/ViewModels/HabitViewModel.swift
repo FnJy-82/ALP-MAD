@@ -152,30 +152,9 @@ final class HabitViewModel {
         }
     }
 
+    // Sinkronkan nilai tersimpan (dipakai WatchConnectivity) dengan streak turunan dari logs.
     private func recalculateStreak(for habit: HabitModel) {
-        let habitId = habit.id
-        let predicate = #Predicate<HabitLogModel> { log in
-            log.habit?.id == habitId && log.isCompleted == true
-        }
-        let descriptor = FetchDescriptor<HabitLogModel>(
-            predicate: predicate,
-            sortBy: [SortDescriptor(\.date, order: .reverse)]
-        )
-        guard let allLogs = try? modelContext.fetch(descriptor) else { return }
-
-        var streak = 0
-        var checkDate = DateHelper.startOfDay(.now)
-
-        for log in allLogs {
-            let logDay = DateHelper.startOfDay(log.date)
-            if logDay == checkDate {
-                streak += 1
-                checkDate = Calendar.current.date(byAdding: .day, value: -1, to: checkDate) ?? checkDate
-            } else {
-                break
-            }
-        }
-        habit.streakCount = streak
+        habit.streakCount = habit.currentStreak
     }
 
     func syncToWatch() {
