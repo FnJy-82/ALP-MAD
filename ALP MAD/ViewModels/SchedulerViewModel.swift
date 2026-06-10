@@ -72,10 +72,11 @@ final class SchedulerViewModel {
         notificationService.cancelNotification(id: id)
         modelContext.delete(block)
         save()
+        fetchBlocks(for: selectedDate)  // refresh dulu supaya block terhapus hilang dari list
         if WCSession.isSupported() {
+            // baru kirim list terbaru ke watch (tanpa block yang sudah dihapus)
             WatchConnectivityService.shared.sendTimeBlocks(timeBlocks)
         }
-        fetchBlocks(for: selectedDate)
     }
     //Update
     func updateBlock(_ updated: TimeBlockModel) {
@@ -83,10 +84,21 @@ final class SchedulerViewModel {
             errorMessage = "Jadwal tidak valid."
             return
         }
+
+        // fetch dulu untuk hari block yang diupdate, lalu cek bentrok.
+        // excluding: agar block ini sendiri tidak dianggap bentrok dengan dirinya.
+        fetchBlocks(for: updated.startTime)
+
+        guard !hasConflict(with: updated, excluding: updated.id) else {
+            errorMessage = "Jadwal bentrok dengan blok waktu lain."
+            return
+        }
+
         notificationService.cancelNotification(id: updated.id)
         save()
-        fetchBlocks(for: selectedDate)
+        fetchBlocks(for: updated.startTime)
         notificationService.scheduleNotification(for: updated)
+        WatchConnectivityService.shared.sendTimeBlocks(timeBlocks)
     }
     
     //Helpers

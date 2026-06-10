@@ -158,7 +158,6 @@ struct WeekCalendarScreen: View {
                             .foregroundStyle(color.isLight ? .black : .white)
                             .lineLimit(2)
                             .padding(2)
-                            .offset(x: leadingOff, y: 40 + topOff)
                     }
             }
         }

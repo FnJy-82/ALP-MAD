@@ -97,6 +97,57 @@ struct SchedulerViewModelTests {
         #expect(vm.timeBlocks.isEmpty)
     }
 
+    //Update Tests
+    @Test("Update blok valid berhasil dan perubahan tersimpan")
+    func updateValidBlock() throws {
+        let vm = try makeViewModel()
+        let now = Date.now
+        vm.selectedDate = now
+        let block = makeBlock(start: now, durationMinutes: 60)
+        vm.addBlock(block)
+
+        block.title = "Judul Baru"
+        vm.updateBlock(block)
+        #expect(vm.errorMessage == nil)
+
+        vm.fetchBlocks(for: now)
+        #expect(vm.timeBlocks.first?.title == "Judul Baru")
+    }
+
+    @Test("Update blok jadi tidak valid (endTime <= startTime) ditolak")
+    func updateInvalidBlockRejected() throws {
+        let vm = try makeViewModel()
+        let now = Date.now
+        vm.selectedDate = now
+        let block = makeBlock(start: now, durationMinutes: 60)
+        vm.addBlock(block)
+
+        block.endTime = block.startTime
+        vm.updateBlock(block)
+        #expect(vm.errorMessage != nil)
+    }
+
+    @Test("Update blok jadi bentrok dengan blok lain ditolak")
+    func updateConflictingBlockRejected() throws {
+        let vm = try makeViewModel()
+        let now = Date.now
+        vm.selectedDate = now
+
+        let first = makeBlock(title: "Pertama", start: now, durationMinutes: 60)
+        vm.addBlock(first)
+
+        // blok kedua 2 jam setelah blok pertama (belum bentrok)
+        let second = makeBlock(title: "Kedua", start: now.addingTimeInterval(2 * 3600), durationMinutes: 60)
+        vm.addBlock(second)
+        #expect(vm.errorMessage == nil)
+
+        // geser blok kedua mundur supaya overlap dengan blok pertama
+        second.startTime = now.addingTimeInterval(30 * 60)
+        second.endTime = now.addingTimeInterval(90 * 60)
+        vm.updateBlock(second)
+        #expect(vm.errorMessage != nil)
+    }
+
     //DateHelper Tests
     @Test("startOfDay mengembalikan jam 00:00")
     func startOfDayIsCorrect() {
