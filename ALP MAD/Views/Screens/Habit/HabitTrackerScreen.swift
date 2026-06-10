@@ -70,8 +70,7 @@ struct HabitTrackerScreen: View {
                             )
                             Divider().padding(.vertical, 8)
                             WeeklyProgressSection(
-                                habits: habitVM.habits,
-                                logs: habitVM.logs
+                                habits: habitVM.habits
                             )
                             .padding(.bottom, 32)
                         }

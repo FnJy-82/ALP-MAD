@@ -9,7 +9,6 @@ import SwiftUI
 
 struct WeeklyProgressSection: View {
     let habits: [HabitModel]
-    let logs: [HabitLogModel]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -27,7 +26,7 @@ struct WeeklyProgressSection: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
                         ForEach(habits) { habit in
-                            WeeklyHabitCard(habit: habit, logs: logs)
+                            WeeklyHabitCard(habit: habit)
                         }
                     }
                     .padding(.horizontal, 16)
@@ -41,7 +40,6 @@ struct WeeklyProgressSection: View {
 // Extracted card supaya WeeklyProgressSection tetap pendek
 private struct WeeklyHabitCard: View {
     let habit: HabitModel
-    let logs: [HabitLogModel]
 
     private var color: Color { Color(hex: habit.colorHex) }
 
@@ -59,12 +57,10 @@ private struct WeeklyHabitCard: View {
             ) else { return false }
             let start = DateHelper.startOfDay(day)
             let end   = DateHelper.endOfDay(day)
-            return logs.contains {
-                guard let lh = $0.habit else { return false }
-                return lh.id == habit.id
-                    && $0.isCompleted
-                    && $0.date >= start
-                    && $0.date <= end
+            // Baca dari relasi habit.logs (semua log habit ini), bukan habitVM.logs
+            // yang hanya berisi log satu hari terakhir yang di-fetch.
+            return habit.logs.contains {
+                $0.isCompleted && $0.date >= start && $0.date <= end
             }
         }
     }
